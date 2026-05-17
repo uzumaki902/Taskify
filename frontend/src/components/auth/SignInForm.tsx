@@ -42,7 +42,7 @@ export default function SignInForm() {
                         type="text"
                         name="identifier"
                         required
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md text-gray-900 bg-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                         placeholder="johndoe@example.com"
                         disabled={isPending}
                     />
@@ -54,7 +54,7 @@ export default function SignInForm() {
                         type="password"
                         name="password"
                         required
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md text-gray-900 bg-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                         placeholder="••••••••"
                         disabled={isPending}
                     />

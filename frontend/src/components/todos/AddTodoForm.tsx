@@ -1,4 +1,3 @@
-// src/components/todos/AddTodoForm.tsx
 "use client";
 
 import { useState } from "react";
@@ -21,7 +20,7 @@ export default function AddTodoForm() {
         if (result?.error) {
             setError(result.error);
         } else {
-            form.reset(); // Clear the input on success
+            form.reset();
         }
 
         setIsPending(false);
@@ -36,7 +35,7 @@ export default function AddTodoForm() {
                     name="title"
                     required
                     placeholder="What needs to be done?"
-                    className="flex-1 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 px-4 py-2 border rounded-md text-gray-900 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     disabled={isPending}
                 />
                 <button

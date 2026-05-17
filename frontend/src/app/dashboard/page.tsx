@@ -1,4 +1,3 @@
-// src/app/dashboard/page.tsx
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import AddTodoForm from "@/components/todos/AddTodoForm";
@@ -8,13 +7,12 @@ import type { Todo, StrapiListResponse } from "@/lib/types";
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 
-// Server-side data fetcher
 async function fetchUserTodos(token: string): Promise<Todo[]> {
     const res = await fetch(`${STRAPI_URL}/api/todos?sort=createdAt:desc`, {
         headers: {
             Authorization: `Bearer ${token}`,
         },
-        cache: "no-store", // Always fetch fresh data
+        cache: "no-store",
     });
 
     if (!res.ok) return [];
@@ -26,17 +24,13 @@ export default async function DashboardPage() {
     const cookieStore = await cookies();
     const token = cookieStore.get("jwt")?.value;
 
-    // The middleware already protects this route, but this is a double-check
     if (!token) redirect("/signin");
 
-    // Read the public user cookie we set during login for the greeting
     const userCookie = cookieStore.get("user")?.value;
-    // Wrap in try-catch — a malformed cookie would crash the entire page otherwise
     const user = (() => {
         try { return userCookie ? JSON.parse(userCookie) : null; } catch { return null; }
     })() ?? { username: "User" };
 
-    // token! — redirect() above guarantees it's defined here, but TS can't infer that
     const todos = await fetchUserTodos(token!);
 
     return (
@@ -69,4 +63,4 @@ export default async function DashboardPage() {
             </div>
         </main>
     );
-}
+}

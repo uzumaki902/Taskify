@@ -1,4 +1,3 @@
-// src/components/todos/TodoItem.tsx
 "use client";
 
 import { useState, useTransition } from "react";
@@ -18,7 +17,6 @@ export default function TodoItem({ todo }: { todo: Todo }) {
     const handleDelete = async () => {
         setIsDeleting(true);
         await deleteTodo(todo.documentId);
-        // We don't need to set isDeleting to false because the component will unmount
     };
 
     return (
