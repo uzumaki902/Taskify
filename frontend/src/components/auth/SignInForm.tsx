@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { signIn } from "@/lib/actions/auth.actions";
 import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function SignInForm() {
     const [error, setError] = useState<string | null>(null);
     const [isPending, setIsPending] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -37,27 +39,37 @@ export default function SignInForm() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email or Username</label>
+                    <label className="block text-sm font-medium text-black-700 mb-1">Email or Username</label>
                     <input
                         type="text"
                         name="identifier"
                         required
                         className="w-full px-4 py-2 border border-gray-300 rounded-md text-gray-900 bg-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                        placeholder="johndoe@example.com"
+                        placeholder="Type you email"
                         disabled={isPending}
                     />
                 </div>
 
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                    <input
-                        type="password"
-                        name="password"
-                        required
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md text-gray-900 bg-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                        placeholder="••••••••"
-                        disabled={isPending}
-                    />
+                    <div className="relative">
+                        <input
+                            type={showPassword ? "text" : "password"}
+                            name="password"
+                            required
+                            className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-md text-gray-900 bg-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                            placeholder="••••••••"
+                            disabled={isPending}
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            disabled={isPending}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors disabled:opacity-50"
+                        >
+                            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                        </button>
+                    </div>
                 </div>
 
                 <button

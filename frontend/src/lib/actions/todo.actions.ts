@@ -28,18 +28,26 @@ export async function createTodo(formData: FormData): Promise<ActionResult> {
       body: JSON.stringify({ data: { title } }),
     });
 
-    if (!res.ok) return { error: "Failed to create task. Please try again." };
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => null);
+      console.error("=== STRAPI CREATE ERROR ===");
+      console.error("Status:", res.status);
+      console.error("Payload:", JSON.stringify(errorData, null, 2));
+      console.error("==========================");
+      return { error: `Server error (${res.status}). Check terminal.` };
+    }
 
     revalidatePath("/dashboard");
     return { success: true };
-  } catch {
+  } catch (err) {
+    console.error("Network Fetch Error:", err);
     return { error: "Could not connect to the server." };
   }
 }
 
 export async function toggleTodo(
   documentId: string,
-  currentStatus: boolean
+  currentStatus: boolean,
 ): Promise<ActionResult> {
   const token = await getAuthToken();
   if (!token) return { error: "Unauthorized." };
@@ -54,11 +62,19 @@ export async function toggleTodo(
       body: JSON.stringify({ data: { isCompleted: !currentStatus } }),
     });
 
-    if (!res.ok) return { error: "Failed to update task. Please try again." };
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => null);
+      console.error("=== STRAPI UPDATE ERROR ===");
+      console.error("Status:", res.status);
+      console.error("Payload:", JSON.stringify(errorData, null, 2));
+      console.error("===========================");
+      return { error: `Server error (${res.status}). Check terminal.` };
+    }
 
     revalidatePath("/dashboard");
     return { success: true };
-  } catch {
+  } catch (err) {
+    console.error("Network Fetch Error:", err);
     return { error: "Could not connect to the server." };
   }
 }
@@ -75,11 +91,54 @@ export async function deleteTodo(documentId: string): Promise<ActionResult> {
       },
     });
 
-    if (!res.ok) return { error: "Failed to delete task. Please try again." };
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => null);
+      console.error("=== STRAPI DELETE ERROR ===");
+      console.error("Status:", res.status);
+      console.error("Payload:", JSON.stringify(errorData, null, 2));
+      console.error("===========================");
+      return { error: `Server error (${res.status}). Check terminal.` };
+    }
 
     revalidatePath("/dashboard");
     return { success: true };
-  } catch {
+  } catch (err) {
+    console.error("Network Fetch Error:", err);
+    return { error: "Could not connect to the server." };
+  }
+}
+
+export async function editTodo(
+  documentId: string,
+  newTitle: string,
+): Promise<ActionResult> {
+  const token = await getAuthToken();
+  if (!token) return { error: "Unauthorized." };
+  if (!newTitle?.trim()) return { error: "Title is required." };
+
+  try {
+    const res = await fetch(`${STRAPI_URL}/api/todos/${documentId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ data: { title: newTitle } }),
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => null);
+      console.error("=== STRAPI EDIT ERROR ===");
+      console.error("Status:", res.status);
+      console.error("Payload:", JSON.stringify(errorData, null, 2));
+      console.error("===========================");
+      return { error: `Server error (${res.status}). Check terminal.` };
+    }
+
+    revalidatePath("/dashboard");
+    return { success: true };
+  } catch (err) {
+    console.error("Network Fetch Error:", err);
     return { error: "Could not connect to the server." };
   }
 }

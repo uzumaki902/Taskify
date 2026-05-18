@@ -10,13 +10,18 @@ export default factories.createCoreController(
         return ctx.unauthorized("You must be logged in to create a todo.");
       }
 
-      ctx.request.body.data = {
-        ...ctx.request.body.data,
-        users_permissions_user: user.id,
-      };
+      // Bypass the strict REST API validation layer and use the internal DB service
+      const newTodo = await strapi.entityService.create("api::todo.todo", {
+        data: {
+          ...ctx.request.body.data,
+          user: user.id, // Safely link the relation at the database level
+          publishedAt: new Date(), // <-- THIS IS THE FIX: Auto-publish the todo
+        },
+      });
 
-      const response = await super.create(ctx);
-      return response;
+      // Format the response back into the standard Strapi API structure for Next.js
+      const sanitizedEntity = await this.sanitizeOutput(newTodo, ctx);
+      return this.transformResponse(sanitizedEntity);
     },
 
     async find(ctx) {
@@ -26,16 +31,17 @@ export default factories.createCoreController(
         return ctx.unauthorized("You must be logged in to view todos.");
       }
 
-      ctx.query = {
+      // Bypass strict REST API validation which blocks querying the user relation
+      const todos = await strapi.entityService.findMany("api::todo.todo", {
         ...ctx.query,
         filters: {
           ...((ctx.query.filters as object) || {}),
-          users_permissions_user: { id: { $eq: user.id } },
+          user: user.id, // Safely filter at the database level
         },
-      };
+      });
 
-      const response = await super.find(ctx);
-      return response;
+      const sanitizedEntries = await this.sanitizeOutput(todos, ctx);
+      return this.transformResponse(sanitizedEntries);
     },
 
     async update(ctx) {
@@ -46,15 +52,18 @@ export default factories.createCoreController(
       }
 
       const { id } = ctx.params;
-      const todo = await strapi.entityService.findOne("api::todo.todo", id, {
-        populate: ["users_permissions_user"],
+      // In Strapi v5, ctx.params.id is the documentId string. entityService expects numeric ID.
+      // We must use the Document Service to find by documentId!
+      const todo = await strapi.documents("api::todo.todo").findOne({
+        documentId: id,
+        populate: ["user"] as any,
       });
 
       if (!todo) {
         return ctx.notFound("Todo not found.");
       }
 
-      const todoOwner = (todo as any).users_permissions_user;
+      const todoOwner = (todo as any).user;
       if (!todoOwner || todoOwner.id !== user.id) {
         return ctx.forbidden("You do not own this todo.");
       }
@@ -71,15 +80,16 @@ export default factories.createCoreController(
       }
 
       const { id } = ctx.params;
-      const todo = await strapi.entityService.findOne("api::todo.todo", id, {
-        populate: ["users_permissions_user"],
+      const todo = await strapi.documents("api::todo.todo").findOne({
+        documentId: id,
+        populate: ["user"] as any,
       });
 
       if (!todo) {
         return ctx.notFound("Todo not found.");
       }
 
-      const todoOwner = (todo as any).users_permissions_user;
+      const todoOwner = (todo as any).user;
       if (!todoOwner || todoOwner.id !== user.id) {
         return ctx.forbidden("You do not own this todo.");
       }

@@ -70,7 +70,7 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::todo.todo",
-      "mappedBy": "users_permissions_user"
+      "mappedBy": "user"
     }
   }
 }

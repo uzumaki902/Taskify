@@ -15,9 +15,18 @@ async function fetchUserTodos(token: string): Promise<Todo[]> {
         cache: "no-store",
     });
 
-    if (!res.ok) return [];
-    const json: StrapiListResponse<Todo> = await res.json();
-    return json.data;
+    if (!res.ok) {
+        const errText = await res.text();
+        console.error("STRAPI FETCH ERROR:", res.status, errText);
+        return [];
+    }
+    
+    const json = await res.json();
+    console.log("STRAPI SUCCESS DATA:", JSON.stringify(json, null, 2));
+    
+    // In Strapi v5, sometimes the response shape differs. 
+    // We make sure to return an array even if json.data is undefined.
+    return json?.data || json || [];
 }
 
 export default async function DashboardPage() {
@@ -38,8 +47,8 @@ export default async function DashboardPage() {
             <div className="max-w-3xl px-4 mx-auto">
                 <header className="flex items-center justify-between mb-8">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">TaskForge Dashboard</h1>
-                        <p className="text-gray-600">Welcome back, {user.username}</p>
+                        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+                        <p className="text-gray-600">Hello, {user.username}</p>
                     </div>
 
                     <form action={signOut}>
@@ -63,4 +72,4 @@ export default async function DashboardPage() {
             </div>
         </main>
     );
-}
+}
