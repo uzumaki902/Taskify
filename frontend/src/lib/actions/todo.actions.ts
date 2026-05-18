@@ -149,28 +149,28 @@ export async function createAiTodo(message: string): Promise<ActionResult> {
   if (!message?.trim()) return { error: "Message is required." };
 
   try {
-    const aiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: `Extract a short, clean todo task title from this message. Return ONLY the todo title, nothing else, no quotes. Message: "${message}"`
-            }]
-          }]
-        })
-      }
-    );
+    const aiResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "llama-3.1-8b-instant",
+        messages: [{
+          role: "user",
+          content: `Extract a short, clean todo task title from this message. Return ONLY the todo title, nothing else, no quotes, no conversational filler. Message: "${message}"`
+        }]
+      })
+    });
 
     if (!aiResponse.ok) {
         console.error("AI Fetch Failed:", await aiResponse.text());
-        return { error: "Failed to connect to Gemini AI." };
+        return { error: "Failed to connect to Groq AI." };
     }
 
     const aiData = await aiResponse.json();
-    const title = aiData.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "AI Task";
+    const title = aiData.choices?.[0]?.message?.content?.trim() || "AI Task";
 
     const res = await fetch(`${STRAPI_URL}/api/todos`, {
       method: "POST",
