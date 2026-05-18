@@ -39,7 +39,9 @@ export default function SignInForm() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label className="block text-sm font-medium text-black-700 mb-1">Email or Username</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5 tracking-wide">
+                        Email or Username
+                    </label>
                     <input
                         type="text"
                         name="identifier"
@@ -57,6 +59,7 @@ export default function SignInForm() {
                             type={showPassword ? "text" : "password"}
                             name="password"
                             required
+                            minLength={6}
                             className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-md text-gray-900 bg-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                             placeholder="••••••••"
                             disabled={isPending}
@@ -75,9 +78,10 @@ export default function SignInForm() {
                 <button
                     type="submit"
                     disabled={isPending}
-                    className="w-full px-4 py-2 font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:bg-blue-400 transition-colors"
+                    className="relative w-full px-4 py-2 font-medium text-white bg-gray-950 rounded-md shadow-2xl overflow-hidden transition-all duration-300 hover:bg-blue-700 hover:shadow-blue-500/50 disabled:bg-blue-400 before:absolute before:right-0 before:top-0 before:h-full before:w-6 before:translate-x-12 before:rotate-6 before:bg-white before:opacity-20 before:duration-700 hover:before:-translate-x-[500px]"
                 >
                     {isPending ? "Signing in..." : "Sign In"}
+
                 </button>
             </form>
 

@@ -20,10 +20,10 @@ async function fetchUserTodos(token: string): Promise<Todo[]> {
         console.error("STRAPI FETCH ERROR:", res.status, errText);
         return [];
     }
-    
+
     const json = await res.json();
     console.log("STRAPI SUCCESS DATA:", JSON.stringify(json, null, 2));
-    
+
     // In Strapi v5, sometimes the response shape differs. 
     // We make sure to return an array even if json.data is undefined.
     return json?.data || json || [];
@@ -43,12 +43,16 @@ export default async function DashboardPage() {
     const todos = await fetchUserTodos(token!);
 
     return (
-        <main className="min-h-screen py-12 bg-gray-50">
+        <main className="min-h-screen py-12 
+
+
+bg-white">
             <div className="max-w-3xl px-4 mx-auto">
                 <header className="flex items-center justify-between mb-8">
                     <div>
                         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-                        <p className="text-gray-600">Hello, {user.username}</p>
+                        <p className="
+text-zinc-950">Hello, {user.username}</p>
                     </div>
 
                     <form action={signOut}>
