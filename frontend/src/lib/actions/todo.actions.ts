@@ -142,3 +142,53 @@ export async function editTodo(
     return { error: "Could not connect to the server." };
   }
 }
+
+export async function createAiTodo(message: string): Promise<ActionResult> {
+  const token = await getAuthToken();
+  if (!token) return { error: "Unauthorized." };
+  if (!message?.trim()) return { error: "Message is required." };
+
+  try {
+    const aiResponse = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: `Extract a short, clean todo task title from this message. Return ONLY the todo title, nothing else, no quotes. Message: "${message}"`
+            }]
+          }]
+        })
+      }
+    );
+
+    if (!aiResponse.ok) {
+        console.error("AI Fetch Failed:", await aiResponse.text());
+        return { error: "Failed to connect to Gemini AI." };
+    }
+
+    const aiData = await aiResponse.json();
+    const title = aiData.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "AI Task";
+
+    const res = await fetch(`${STRAPI_URL}/api/todos`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ data: { title } }),
+    });
+
+    if (!res.ok) {
+      return { error: `Server error (${res.status}). Check terminal.` };
+    }
+
+    revalidatePath("/dashboard");
+    return { success: true };
+  } catch (err) {
+    console.error("AI Creation Error:", err);
+    return { error: "Could not connect to the AI server." };
+  }
+}

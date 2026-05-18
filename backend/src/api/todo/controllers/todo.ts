@@ -10,16 +10,14 @@ export default factories.createCoreController(
         return ctx.unauthorized("You must be logged in to create a todo.");
       }
 
-      // Bypass the strict REST API validation layer and use the internal DB service
       const newTodo = await strapi.entityService.create("api::todo.todo", {
         data: {
           ...ctx.request.body.data,
-          user: user.id, // Safely link the relation at the database level
-          publishedAt: new Date(), // <-- THIS IS THE FIX: Auto-publish the todo
+          user: user.id,
+          publishedAt: new Date(),
         },
       });
 
-      // Format the response back into the standard Strapi API structure for Next.js
       const sanitizedEntity = await this.sanitizeOutput(newTodo, ctx);
       return this.transformResponse(sanitizedEntity);
     },
